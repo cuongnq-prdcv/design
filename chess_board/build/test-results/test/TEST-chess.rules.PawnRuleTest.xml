@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="chess.rules.PawnRuleTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-09-07T09:30:47.531Z" hostname="27597-PRDCV572" time="0.011">
+  <properties/>
+  <testcase name="pawnTwoSquareBlockedBySecondSquare()" classname="chess.rules.PawnRuleTest" time="0.003"/>
+  <testcase name="blackPawnMovesDownward()" classname="chess.rules.PawnRuleTest" time="0.001"/>
+  <testcase name="pawnCapturesDiagonallyNotForwardEnemy()" classname="chess.rules.PawnRuleTest" time="0.0"/>
+  <testcase name="pawnDoesNotCaptureFriendlyDiagonal()" classname="chess.rules.PawnRuleTest" time="0.0"/>
+  <testcase name="whitePawnOnStartCanMoveOneOrTwo()" classname="chess.rules.PawnRuleTest" time="0.001"/>
+  <testcase name="pawnBlockedCannotMoveForward()" classname="chess.rules.PawnRuleTest" time="0.0"/>
+  <testcase name="whitePawnNotOnStartMovesOneOnly()" classname="chess.rules.PawnRuleTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

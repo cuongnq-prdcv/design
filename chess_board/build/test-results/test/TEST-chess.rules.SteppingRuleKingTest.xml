@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="chess.rules.SteppingRuleKingTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-09-07T09:30:47.554Z" hostname="27597-PRDCV572" time="0.004">
+  <properties/>
+  <testcase name="kingInCenterHasEightMoves()" classname="chess.rules.SteppingRuleKingTest" time="0.001"/>
+  <testcase name="kingDoesNotEnterFriendlyButCapturesEnemy()" classname="chess.rules.SteppingRuleKingTest" time="0.001"/>
+  <testcase name="kingInCornerIsClampedToBoard()" classname="chess.rules.SteppingRuleKingTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
