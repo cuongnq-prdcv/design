@@ -1,17 +1,4 @@
-# Diagrams — Hiện trạng sau Phase 3 (bản dễ đọc)
-
-> Phản ánh **code thực tế tới hết Phase 3**. Input còn hard-code trong `Main` (Phase 4 mới thêm
-> `InputSource`/`PieceFormatParser`/`BoardValidator`). Mọi sơ đồ Mermaid đã được render kiểm tra hợp lệ.
-> Tham chiếu: `../design.md`, `../specs/`.
-
-Thay vì một sơ đồ lớn, tài liệu này **kể lại hành trình của dữ liệu** qua 4 chặng, mỗi chặng một
-sơ đồ nhỏ + giải thích. Đọc lần lượt từ trên xuống là hiểu toàn bộ hệ thống.
-
----
-
-## Chú giải ký hiệu UML (class diagram)
-
-Các class diagram dưới đây dùng ký hiệu UML chuẩn cho nhãn quan hệ (giữ tiếng Anh để không sai nghĩa):
+# Diagrams
 
 | Ký hiệu Mermaid | Loại quan hệ | Ý nghĩa |
 |---|---|---|
@@ -24,26 +11,113 @@ Multiplicity: `1` = đúng một, `*` = không hoặc nhiều, `0..1` = tối đ
 
 ---
 
-## Toàn cảnh 30 giây — 4 chặng
+## Overview
 
 ```mermaid
 flowchart LR
-    A["① Board<br/>(quân nào ở ô nào)"] --> B["② MoveEngine<br/>(hỏi luật cho từng quân)"]
-    B --> C["③ MovementRule<br/>(tính nước đi 1 quân)"]
+    Z["Input<br/>(source × format → Board)"] --> B["MoveEngine<br/>(hỏi luật cho từng quân)"]
+    B --> C["MovementRule<br/>(tính nước đi 1 quân)"]
     C --> B
-    B --> D["④ ResultWriter<br/>(in ra Console/JSON)"]
+    B --> D["ResultWriter<br/>(in ra Console/JSON)"]
 ```
 
-- **① Board** giữ trạng thái: ô nào có quân gì.
+- **⓪ Input** đọc bytes (file/console) rồi parse (notation/YAML/JSON) → validate → `Board`.
+- **① Board** (kết quả của chặng ⓪) giữ trạng thái: ô nào có quân gì.
 - **② MoveEngine** duyệt từng quân, tra bảng luật, gom kết quả.
-- **③ MovementRule** là "bộ não" của mỗi quân: cho 1 quân + bàn cờ → danh sách nước đi.
-- **④ ResultWriter** biến kết quả thành chữ (Console) hoặc JSON.
+- **③ MovementRule** : cho 1 quân + bàn cờ → danh sách nước đi.
+- **④ ResultWriter** in kết quả theo dạng dưới Console/JSON
 
-4 chặng = 4 trách nhiệm tách biệt (đây chính là SRP). Dưới đây soi từng chặng.
+Mỗi chặng = một trách nhiệm tách biệt (SRP). Dưới đây soi từng chặng.
 
 ---
 
-## Chặng ① — Dữ liệu trên bàn cờ (model thuần)
+## Mục ⓪ — Nạp input (2 chiều trực giao: source × format)
+
+Trước khi có `Board`, phải lấy quân từ đâu đó. Đây là phần đề soi kỹ nhất: **"nơi lấy bytes"** và
+**"cách hiểu bytes"** là hai chiều ĐỘC LẬP, gặp nhau ở `String`.
+
+```mermaid
+classDiagram
+    direction LR
+    class InputSource {
+        <<interface>>
+        +read() String
+    }
+    class ConsoleInputSource
+    class FileInputSource
+
+    class PieceFormatParser {
+        <<interface>>
+        +parse(String) List~Piece~
+    }
+    class NotationParser
+    class TreeFormatParser {
+        <<abstract>>
+    }
+    class JsonParser
+    class YamlParser
+
+    class BoardValidator {
+        +validate(List~Piece~) Board
+    }
+    class ChessInputException {
+        <<exception>>
+    }
+
+    InputSource <|.. ConsoleInputSource
+    InputSource <|.. FileInputSource
+    PieceFormatParser <|.. NotationParser
+    PieceFormatParser <|.. TreeFormatParser
+    TreeFormatParser <|-- JsonParser
+    TreeFormatParser <|-- YamlParser
+
+    ConsoleInputSource ..> ChessInputException : throws
+    FileInputSource ..> ChessInputException : throws
+    PieceFormatParser ..> ChessInputException : throws
+    BoardValidator ..> ChessInputException : throws
+    BoardValidator ..> Board : builds
+```
+
+**Cách đọc — hai chiều gặp nhau ở `String`:**
+1. **Chiều SOURCE** (`InputSource`): chỉ trả `String`, KHÔNG biết định dạng. `ConsoleInputSource`
+   (stdin), `FileInputSource` (file).
+2. **Chiều FORMAT** (`PieceFormatParser`): nhận `String` → `List<Piece>`, KHÔNG biết nguồn.
+   `NotationParser` (compact) đứng riêng; `JsonParser`/`YamlParser` chia sẻ `TreeFormatParser`
+   (chỉ khác nhau ObjectMapper JSON vs YAML).
+3. Ghép ở composition root: `parser.parse(source.read())` → **bất kỳ format nào × bất kỳ source nào**.
+4. **Validate một chỗ**: `BoardValidator` biến `List<Piece>` → `Board`, kiểm tra trùng ô (off-board
+   đã chặn khi tạo `Square`). KHÔNG lặp validate trong từng parser.
+5. **Lỗi hội tụ**: mọi vấn đề (file thiếu, cú pháp sai, unknown type, trùng ô) → `ChessInputException`,
+   `Main` bắt một chỗ, in clear error + exit ≠ 0.
+
+> Điểm mấu chốt (đề soi): thêm một FORMAT mới (ví dụ FEN) KHÔNG đụng source hay parser khác; thêm
+> một SOURCE mới (ví dụ URL) KHÔNG đụng parser. Đó là vì ranh giới giữa hai chiều chỉ là `String`.
+
+### Pipeline nạp input → kết quả (đầy đủ)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant M as Main (composition root)
+    participant S as InputSource
+    participant P as PieceFormatParser
+    participant V as BoardValidator
+    participant E as MoveEngine
+    participant W as ResultWriter
+    M->>S: read()
+    S-->>M: raw String
+    M->>P: parse(raw)
+    P-->>M: List~Piece~
+    M->>V: validate(pieces)
+    V-->>M: Board  (hoặc ném ChessInputException)
+    M->>E: compute(board)
+    E-->>M: ResultSet
+    M->>W: write(resultSet, out)
+```
+
+---
+
+## Mục ① — Dữ liệu trên bàn cờ (Bàn cờ, quân cờ, vị trí ô)
 
 Đây là các "danh từ" của bài: quân, ô, bàn cờ. Chúng **chỉ giữ dữ liệu**, không tính toán, không in.
 
@@ -79,7 +153,7 @@ classDiagram
 
 ---
 
-## Chặng ③ — Bộ não của từng quân (MovementRule)
+## Mục ③ — Rule (MovementRule)
 
 *(Xem chặng ③ trước ② vì hiểu luật 1 quân rồi mới thấy engine điều phối thế nào.)*
 
@@ -113,7 +187,7 @@ classDiagram
     SteppingRule ..> Direction : uses
 ```
 
-**Cách đọc — 3 "họ" luật:**
+**Note:**
 1. **SlidingRule** (trượt): đi theo mỗi hướng cho tới khi gặp mép bàn / quân cùng phe (dừng) /
    quân địch (ăn rồi dừng). Chỉ khác nhau ở **danh sách hướng**:
    - Rook = 4 hướng thẳng, Bishop = 4 hướng chéo, Queen = cả 8 hướng.
@@ -142,12 +216,14 @@ flowchart TD
     cap --> dir
 ```
 
-**Cách đọc:** với mỗi hướng, cứ bước tiếp khi ô trống; gặp quân cùng phe thì dừng (không vào);
-gặp quân địch thì thêm nước ăn `(x)` rồi dừng. Đây đúng là logic trong `SlidingRule`.
+**Note:**
+1. Với mỗi hướng, bước tiếp khi ô trống.
+2. Gặp quân cùng phe thì dừng.
+3. Gặp quân địch thì thêm nước ăn `(x)` rồi dừng.
 
 ---
 
-## Chặng ② — Người điều phối (MoveEngine)
+## Mục ② — MoveEngine
 
 Engine **không biết** luật của từng quân. Nó chỉ có một bảng tra `PieceType → MovementRule` và
 lần lượt hỏi từng quân.
@@ -183,7 +259,7 @@ sequenceDiagram
     E-->>E: trả về ResultSet (gộp tất cả)
 ```
 
-**Cách đọc:**
+**Note:**
 1. Engine lấy danh sách quân từ `Board`.
 2. Với mỗi quân: tra bảng luật theo `type` → được đúng `MovementRule` của quân đó.
 3. Hỏi rule "đi được đâu?" → nhận `List<Move>`, gói thành `PieceResult`.
@@ -194,7 +270,7 @@ sequenceDiagram
 
 ---
 
-## Chặng ④ — Xuất kết quả (ResultWriter)
+## Mục ④ — Result
 
 `ResultSet` là dữ liệu thuần. Việc "biến thành chữ" giao cho writer — mỗi format một class.
 
@@ -215,7 +291,7 @@ classDiagram
     ResultWriter <|.. JsonWriter
 ```
 
-**Cách đọc:**
+**Note:**
 1. Cùng một `ResultSet`, đưa cho `ConsoleWriter` ra text dễ đọc, đưa cho `JsonWriter` ra JSON.
 2. `write` ghi vào `Appendable` (một "cái phễu" chung): production dùng `System.out`, test dùng
    `StringBuilder` → **test không cần I/O thật** (DIP proof).
@@ -223,47 +299,75 @@ classDiagram
 
 ---
 
-## Chặng ⑤ — Nơi ráp mọi thứ (Main = composition root)
+## Mục ⑤ — Main (Ghép các đối tượng + rule...)
 
-Đây là chỗ **duy nhất** biết tất cả các mảnh ghép cụ thể và nối chúng lại.
+Đây là chỗ **duy nhất** biết tất cả các mảnh ghép cụ thể và nối chúng lại. Ba trục chọn qua
+**registry + cờ CLI**; lỗi input hội tụ và được bắt tại đây.
 
 ```mermaid
 flowchart TD
-    Main["Main.main()"]
-    Main --> board["new Board(...)  ← quân hard-code (Phase 4 sẽ thay bằng parser)"]
-    Main --> rules["dựng Map PieceType→MovementRule<br/>(thêm quân = thêm 1 dòng)"]
-    Main --> pick["chọn writer theo --out (console|json)"]
-    board --> run["MoveEngine.compute(board) → ResultSet"]
-    rules --> run
+    Main["Main.main(args)"]
+    Main --> src["resolveSource(--source, --file)<br/>SOURCES registry → InputSource"]
+    Main --> par["PARSERS registry[--format]<br/>→ PieceFormatParser"]
+    Main --> wr["WRITERS registry[--out]<br/>→ ResultWriter"]
+    src --> read["source.read() → String"]
+    par --> parse["parser.parse(String) → List~Piece~"]
+    read --> parse
+    parse --> val["BoardValidator.validate() → Board"]
+    val --> run["MoveEngine(RULES).compute(board) → ResultSet"]
     run --> write["writer.write(resultSet, out)"]
-    pick --> write
+    wr --> write
     write --> stdout["System.out"]
+    Main -. catch .-> err["ChessInputException<br/>→ stderr + exit ≠ 0"]
 ```
 
-**Cách đọc:** `Main` (1) tạo `Board`, (2) nạp bảng luật, (3) chọn writer, (4) chạy engine rồi ghi
-ra. Các mảnh còn lại **nhận** dependency từ đây, không tự `new` lẫn nhau → dễ thay thế, dễ test.
+**Note:** `Main` (1) tra 3 registry theo cờ CLI để lấy source/parser/writer, (2) chạy pipeline
+`read → parse → validate → compute → write`, (3) bọc toàn bộ trong try/catch để mọi
+`ChessInputException` in clear error + thoát mã ≠ 0. Các mảnh còn lại **nhận** dependency, không tự
+`new` lẫn nhau.
+
+> Extension point: thêm 1 source/format/writer = thêm 1 dòng vào registry tương ứng (`SOURCES`,
+> `PARSERS`, `WRITERS`); thêm 1 quân = thêm 1 dòng vào `RULES`. Không sửa lõi.
 
 ---
 
-## Trình tự đọc đề xuất (tóm tắt)
+## Follow step (Hiểu logic)
 
-1. **Toàn cảnh 30 giây** — nắm 4 chặng.
-2. **Chặng ①** — hiểu dữ liệu (Piece/Square/Board).
-3. **Chặng ③** — hiểu 1 quân tính nước đi ra sao (kèm flowchart Rook).
-4. **Chặng ②** — hiểu engine điều phối nhiều quân.
-5. **Chặng ④** — hiểu xuất kết quả nhiều format.
-6. **Chặng ⑤** — hiểu nơi ráp nối.
+1. **Overview** — nắm 5 chặng.
+2. **Mục ⓪** — hiểu cách nạp input (source × format → Board).
+3. **Mục ①** — hiểu dữ liệu (Piece/Square/Board).
+4. **Mục ③** — hiểu 1 quân tính nước đi ra sao (kèm flowchart Rook).
+5. **Mục ②** — hiểu engine điều phối nhiều quân.
+6. **Mục ④** — hiểu xuất kết quả nhiều format.
+7. **Mục ⑤** — hiểu nơi ráp nối (registry + pipeline + xử lý lỗi).
 
-Mỗi chặng là một trách nhiệm (SRP); các mũi tên giữa chặng luôn đi qua **interface** (OCP/LSP/DIP).
+Mỗi mục là một trách nhiệm (SRP); các mũi tên giữa chặng luôn đi qua **interface** (OCP/LSP/DIP).
 
 ---
 
-## Những gì CHƯA có (Phase 4)
+## 
 
-- `InputSource` → `ConsoleInputSource`, `FileInputSource` (trục *nguồn*).
-- `PieceFormatParser` → `NotationParser`, `YamlParser`, `JsonParser` (trục *định dạng*).
-- `BoardValidator` — kiểm tra board một chỗ (off-board, trùng ô).
-- Registry `Map<String, Supplier<...>>` thay `switch(out)` tạm trong `Main`.
+```mermaid
+flowchart LR
+    app["chess.app<br/>Main (composition root)"]
+    input["chess.input<br/>InputSource, PieceFormatParser,<br/>Notation/Json/Yaml, BoardValidator,<br/>ChessInputException"]
+    model["chess.model<br/>Piece, Board, Move,<br/>ResultSet, Square..."]
+    rules["chess.rules<br/>MovementRule, Sliding/Stepping,<br/>PawnRule, Direction"]
+    engine["chess.engine<br/>MoveEngine"]
+    output["chess.output<br/>ResultWriter,<br/>ConsoleWriter, JsonWriter"]
 
-Hiện `Main` tự `new Board(...)` với quân hard-code — mắt xích này Phase 4 sẽ thay bằng
-`parser.parse(source.read())` → `BoardValidator.validate(...)`.
+    app --> input
+    app --> engine
+    app --> rules
+    app --> output
+    app --> model
+    input --> model
+    engine --> model
+    engine --> rules
+    rules --> model
+    output --> model
+```
+
+**Chiều phụ thuộc:** mọi thứ hướng về `model` (state thuần), không phụ thuộc vòng.
+Đặc biệt `engine`/`rules`/`output` **KHÔNG** phụ thuộc `chess.input` — ranh giới này được khoá bằng
+`ArchitectureBoundaryTest` (fitness function). `app` là nơi duy nhất biết tất cả concretion.

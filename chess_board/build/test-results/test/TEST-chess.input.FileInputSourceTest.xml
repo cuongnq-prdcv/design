@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="chess.input.FileInputSourceTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-09-08T01:47:42.763Z" hostname="27597-PRDCV572" time="0.019">
+  <properties/>
+  <testcase name="missingFileFails()" classname="chess.input.FileInputSourceTest" time="0.004"/>
+  <testcase name="consoleReadsStdinStream()" classname="chess.input.FileInputSourceTest" time="0.004"/>
+  <testcase name="readsFileContent()" classname="chess.input.FileInputSourceTest" time="0.008"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

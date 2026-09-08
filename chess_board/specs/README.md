@@ -29,5 +29,5 @@ và **vết truy xuất** (đã xử lý gì, test nào cover, kết quả run) 
 | 1 | `phase-1.md` | DONE (backfill) |
 | 2 | `phase-2.md` | DONE (backfill) |
 | 3 | `phase-3.md` | DONE (JSON output) |
-| 4 | `phase-4.md` | chưa bắt đầu (input sources + formats) |
+| 4 | `phase-4.md` | DONE (input sources + formats + validator + registry + error handling) |
 | 5 | `phase-5.md` | chưa bắt đầu (stretch) |

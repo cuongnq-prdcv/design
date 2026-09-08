@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="chess.rules.SlidingSteppingReuseTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-09-07T09:30:47.549Z" hostname="27597-PRDCV572" time="0.004">
+<testsuite name="chess.rules.SlidingSteppingReuseTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-09-08T01:47:43.210Z" hostname="27597-PRDCV572" time="0.005">
   <properties/>
   <testcase name="knightJumpsOverBlockers()" classname="chess.rules.SlidingSteppingReuseTest" time="0.001"/>
-  <testcase name="queenIsRookPlusBishop()" classname="chess.rules.SlidingSteppingReuseTest" time="0.0"/>
-  <testcase name="bishopSlidesDiagonalsOnly()" classname="chess.rules.SlidingSteppingReuseTest" time="0.0"/>
-  <testcase name="knightJumpsEightLShapes()" classname="chess.rules.SlidingSteppingReuseTest" time="0.0"/>
+  <testcase name="queenIsRookPlusBishop()" classname="chess.rules.SlidingSteppingReuseTest" time="0.001"/>
+  <testcase name="bishopSlidesDiagonalsOnly()" classname="chess.rules.SlidingSteppingReuseTest" time="0.001"/>
+  <testcase name="knightJumpsEightLShapes()" classname="chess.rules.SlidingSteppingReuseTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

@@ -1,16 +1,12 @@
 # Chess Board — Design Document (SOLID Exercise)
 
-> Tài liệu này tổng hợp các quyết định thiết kế đã brainstorm trước khi code.
-> Mục tiêu: cô lập **3 trục thay đổi** (input / movement rules / output) sao cho mọi thay đổi
-> là *additive* (thêm class mới + 1 dòng wiring), không sửa code cũ.
-> Ngôn ngữ: **Java**. Build: **Gradle**. Test: chạy manual (chưa gắn SonarQube).
+> Ngôn ngữ: **Java**. Build: **Gradle**.
 
 ---
 
 ## 1. Nguyên tắc xuyên suốt
 
-Luồng dữ liệu **một chiều**, mỗi mũi tên là một ranh giới abstraction. Không khối nào biết về
-khối trước/sau ngoài kiểu dữ liệu đi qua ranh giới.
+Luồng dữ liệu **một chiều**. Không khối nào biết về khối trước/sau ngoài kiểu dữ liệu đi qua.
 
 ```
         ┌─────────────┐   raw String   ┌──────────────────┐  List<Piece>
@@ -18,14 +14,14 @@ args ──▶ │ InputSource │ ─────────────▶ �
         └─────────────┘                └──────────────────┘            │
         Console/File                    Notation/Yaml/Json             ▼
                                                               ┌──────────────────┐
-                                                              │  BoardValidator  │  (1 chỗ duy nhất)
+                                                              │  BoardValidator  │  (only)
                                                               └──────────────────┘
                                                                        │ Board
                                                                        ▼
                           Map<PieceType,MovementRule>          ┌──────────────┐
                           (nạp ở composition root)  ──────────▶│  MoveEngine  │
                                                               └──────────────┘
-                                                                       │ ResultSet (data thuần)
+                                                                       │ ResultSet (data)
                                                                        ▼
                                                               ┌──────────────┐   Appendable
                                                               │ ResultWriter │ ─────────────▶ out
@@ -37,7 +33,7 @@ args ──▶ │ InputSource │ ─────────────▶ �
 
 ## 2. Các quyết định thiết kế đã chốt
 
-### Trục 1 — INPUT (2 chiều trực giao)
+### Mục 1 — INPUT (2 chiều trực giao)
 - Tách **"đọc bytes"** (`InputSource`) khỏi **"hiểu bytes"** (`PieceFormatParser`).
 - **Ranh giới giữa 2 chiều là `String`** (đọc hết một lần — input nhỏ, không cần streaming).
 - Bất kỳ source nào × bất kỳ parser nào = tự do tổ hợp: `parser.parse(source.read())`.
@@ -46,7 +42,7 @@ args ──▶ │ InputSource │ ─────────────▶ �
   - Thêm format mới = thêm 1 dòng registry (OCP), không sửa code khác.
 - `Piece` do parser trả ra là **model thuần** (type, side, position) — KHÔNG gắn Board, KHÔNG gắn luật đi.
 
-### Trục 2 — MOVEMENT RULES (Phương án B — bám SOLID)
+### Mục 2 — MOVEMENT RULES
 - `MovementRule` **tách rời** khỏi `Piece`. Engine giữ `Map<PieceType, MovementRule>` nạp ở
   composition root. Engine chỉ **tra map**, KHÔNG `switch(pieceType)`.
 - Gom 2 "họ" luật để giảm trùng lặp (vẫn không có switch, thể hiện LSP):
@@ -56,12 +52,20 @@ args ──▶ │ InputSource │ ─────────────▶ �
   - **PawnRule** — để riêng (luật đặc thù: đi thẳng không ăn, ăn chéo, nước đôi từ hàng xuất phát).
 - `Move { Square target; boolean capture; }` — đủ để đánh dấu `(x)` theo yêu cầu đề.
 
-### Trục 3 — OUTPUT (pluggable, tách format khỏi đích đến)
+### Mục 3 — OUTPUT (pluggable, tách format khỏi đích đến)
 - `ResultWriter.write(ResultSet, Appendable out)` — **Lựa chọn Y**.
   - `Appendable` chuẩn Java: `System.out`, `StringBuilder`, `FileWriter` đều implement.
   - Test dùng `StringBuilder` (zero I/O — đúng "DIP proof"); production dùng `System.out`/`FileWriter`.
   - Tách **format** (writer làm) khỏi **đích đến** (Appendable) — nhất quán với cách tách source×format.
 - `ResultSet` là **data thuần**, KHÔNG có `toJson()` (nếu có thì tangle rules với output).
+
+### Handle error
+- **Một kiểu lỗi domain thống nhất:** `ChessInputException` (unchecked) cho MỌI lỗi input/validation:
+  unknown piece type/side, off-board, trùng ô, cú pháp notation/YAML/JSON sai, file không đọc được.
+- **Hội tụ về một chỗ:** `Main` bắt `ChessInputException`, in thông báo rõ ra `stderr`, thoát với
+  exit code ≠ 0. Phần còn lại KHÔNG bắt lỗi lẻ tẻ, chỉ ném với thông điệp rõ ràng.
+- `Square` vẫn validate biên; `BoardValidator` là nơi gom validate board (off-board/trùng ô) và
+  ném `ChessInputException` — KHÔNG lặp validate trong từng parser.
 
 ---
 
@@ -76,31 +80,31 @@ record Piece(PieceType type, Side side, Square position) { }
 
 record Move(Square target, boolean capture) { }
 record PieceResult(Piece piece, List<Move> moves) { }
-record ResultSet(List<PieceResult> results) { }   // KHÔNG có toJson()
+record ResultSet(List<PieceResult> results) { }   // Not include toJson()
 ```
 
 ## 4. Abstraction
 
 ```java
-// Trục Input — ranh giới là String
+// Input — ranh giới là String
 interface InputSource       { String read(); }
 interface PieceFormatParser { List<Piece> parse(String raw); }
 
-// Board + validation (1 chỗ duy nhất)
+// Board + validation (1 chỗ duy nhất - cũng như chỉ có 1 bàn cơ)
 class Board          { /* giữ pieces; pieceAt(Square), isEmpty(Square)... */ }
 class BoardValidator { Board validate(List<Piece> pieces); }  // off-board, trùng ô
 
-// Trục Rules — polymorphism, KHÔNG switch
+// Rules — Not switch
 interface MovementRule { List<Move> movesFor(Piece piece, Board board); }
 abstract class SlidingRule  implements MovementRule { /* List<Direction> */ }
 abstract class SteppingRule implements MovementRule { /* List<offset> */ }
 class PawnRule implements MovementRule { }
 
-// Trục Output — format tách khỏi đích đến
+// Output — format tách khỏi đích đến
 interface ResultWriter { void write(ResultSet results, Appendable out); }
 ```
 
-## 5. Engine — chỉ tra map
+## 5. Engine — sử dụng map
 
 ```java
 class MoveEngine {
@@ -113,7 +117,7 @@ class MoveEngine {
 }
 ```
 
-## 6. Composition root — nơi DUY NHẤT ráp mọi thứ
+## 6. Root - tổng hợp các phần + triển khai
 
 ```java
 class Main {
@@ -142,9 +146,9 @@ class Main {
 
 ---
 
-## 7. Cách thỏa Definition of Done
+## 7. Definition of Done
 
-| Tiêu chí (đề) | Cách thiết kế đáp ứng |
+| Tiêu chí (đề) | Đáp ứng |
 |---|---|
 | Thêm quân mới = 1 class + 1 dòng | Rule class mới + 1 dòng trong `rules` map |
 | Thêm output format = 1 writer class | `ResultWriter` mới + 1 dòng writer registry |
@@ -167,6 +171,29 @@ class Main {
 - **DIP** — `MoveEngine` phụ thuộc abstraction (`MovementRule`), concretions inject ở `main`.
   Proof: unit-test move calc với in-memory `Board` + `StringBuilder`, zero I/O.
 
+### Table: class/interface <=> SOLID (cho design review)
+
+| Nguyên lý | Type embody nó | Bằng chứng cụ thể |
+|---|---|---|
+| **SRP** | `PieceFormatParser`, `MovementRule`/`MoveEngine`, `ResultWriter` | 3 lý do thay đổi ở 3 package tách biệt; `model` chỉ giữ state |
+| **OCP** | `MovementRule` (+ `RULES` map), `ResultWriter` (+ `WRITERS`), `PieceFormatParser` (+ `PARSERS`) | Phase 2/3/4 thêm quân/format/parser mà `MoveEngine` không đổi 1 dòng |
+| **LSP** | `MovementRule` ← `SlidingRule`/`SteppingRule`/`PawnRule` | Engine gọi mọi quân qua interface; không `if (piece is X)` |
+| **ISP** | `InputSource` (`read`), `PieceFormatParser` (`parse`), `MovementRule` (`movesFor`), `ResultWriter` (`write`) | Mỗi interface 1 method, không fat interface |
+| **DIP** | `MoveEngine`←`MovementRule`; core ⊥ `chess.input` | Concretion inject ở `Main`; khoá bằng `ArchitectureBoundaryTest` |
+
+### Extension points (cắm thêm ở đâu — đã có comment "MỞ RỘNG" trong code)
+
+| Muốn thêm | Làm gì | Chạm code cũ? |
+|---|---|---|
+| Quân mới (Archbishop) | thêm `PieceType` + 1 dòng `RULES` (chọn Sliding/Stepping/rule mới) | Không |
+| Output format (XML/text) | class mới `implements ResultWriter` + 1 dòng `WRITERS` | Không |
+| Input format (FEN) | class mới `implements PieceFormatParser` + 1 dòng `PARSERS` | Không |
+| Input source (URL) | class mới `implements InputSource` + 1 dòng `SOURCES` | Không |
+| Luật board-level (đúng 1 vua) | thêm 1 bước trong `BoardValidator` | Chỉ `BoardValidator` |
+| Phân loại lỗi chi tiết | subclass `ChessInputException` | Không (Main vẫn bắt 1 chỗ) |
+
+Tất cả extension đều là **thêm class + 1 dòng wiring ở composition root**, không sửa lõi
+
 ---
 
 ## 9. Kế hoạch giao hàng theo Phase (đi tuần tự, KHÔNG refactor trước)
@@ -178,13 +205,10 @@ Chủ đích: cảm nhận **friction** khi phase sau buộc sửa code phase tr
 - **Phase 3** — Thêm **JSON** output cạnh Console. Quan sát: có đụng movement code?
 - **Phase 4** — Thêm **file** source; rồi **YAML + JSON** parser cạnh notation.
   Quan sát: engine có phụ thuộc "nơi lấy piece"? Thêm format có đụng notation parser?
-- **Phase 5 (stretch)** — XML/plain-text output hoặc FEN input, sửa càng ít code cũ càng tốt.
+- **Phase 5 - Optional (stretch)** — XML/plain-text output hoặc FEN input, sửa càng ít code cũ càng tốt.
 
 ---
 
 ## 10. Anti-patterns cần tránh (nhắc lại từ đề)
 
-- **No God class** — không gộp parse + calc + print.
-- **No type-code branching** — polymorphism thay `switch(pieceType)`.
-- **Đừng over-abstract** — chỉ abstract 3 trục thật sự có nhiều implementation.
-- **Composition root** — mọi wiring ở 1 chỗ (`main`); phần còn lại nhận dependency injected.
+Mục 6 của đề

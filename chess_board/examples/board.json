@@ -1,0 +1,13 @@
+{
+  "pieces": [
+    { "type": "KING",   "side": "WHITE", "position": "E2" },
+    { "type": "QUEEN",  "side": "WHITE", "position": "D1" },
+    { "type": "ROOK",   "side": "WHITE", "position": "A1" },
+    { "type": "KNIGHT", "side": "WHITE", "position": "B1" },
+    { "type": "BISHOP", "side": "WHITE", "position": "C4" },
+    { "type": "PAWN",   "side": "WHITE", "position": "A2" },
+    { "type": "KING",   "side": "BLACK", "position": "E8" },
+    { "type": "ROOK",   "side": "BLACK", "position": "A8" },
+    { "type": "PAWN",   "side": "BLACK", "position": "E5" }
+  ]
+}
