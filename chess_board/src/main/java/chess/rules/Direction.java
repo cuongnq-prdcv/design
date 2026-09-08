@@ -2,7 +2,13 @@ package chess.rules;
 
 import java.util.List;
 
-/** Một hướng/offset (df, dr) trên bàn cờ. Dùng cho cả sliding lẫn stepping. */
+/**
+ * Phase 1 — xem specs/phase-1.md.
+ * Một hướng/offset (df, dr) trên bàn cờ. Dùng cho cả sliding lẫn stepping.
+ *
+ * MỞ RỘNG: một quân cần bộ hướng mới → thêm một hằng List<Direction> ở đây rồi truyền vào
+ * SlidingRule/SteppingRule khi đăng ký trong Main.
+ */
 public record Direction(int df, int dr) {
 
     /** 4 hướng thẳng (rook). */

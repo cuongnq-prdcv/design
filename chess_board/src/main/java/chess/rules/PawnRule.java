@@ -11,11 +11,16 @@ import java.util.List;
 import java.util.Optional;
 
 /**
+ * Phase 2 — xem specs/phase-2.md (11 case, riêng Pawn có 7 case).
+ *
  * Luật cho Pawn (đơn giản hoá — không en passant, không phong cấp):
  * - Tiến 1 ô vào ô TRỐNG (White: +rank, Black: -rank).
  * - Tiến 2 ô từ hàng xuất phát nếu CẢ HAI ô trước đều trống.
  * - Ăn CHÉO tiến 1 ô khi ô đó có quân địch.
- * Để riêng vì luật khác hẳn sliding/stepping (hướng đi != hướng ăn).
+ * Để riêng vì luật khác hẳn sliding/stepping (hướng đi != hướng ăn) — đây là ví dụ "abstraction
+ * worth it": KHÔNG cố nhét Pawn vào SlidingRule/SteppingRule.
+ *
+ * MỞ RỘNG: nếu cần en passant/phong cấp (ngoài scope đề) thì thêm logic Ở ĐÂY, không đụng quân khác.
  */
 public final class PawnRule implements MovementRule {
 

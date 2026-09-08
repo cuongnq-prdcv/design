@@ -10,10 +10,15 @@ import java.util.List;
 import java.util.Optional;
 
 /**
+ * Phase 1 (King) + Phase 2 (Knight) — xem specs/phase-1.md, specs/phase-2.md.
+ *
  * Luật cho quân bước 1 nhịp theo offset cố định (king/knight).
  * - Không vào ô có quân cùng phe.
  * - Vào ô trống, hoặc ăn quân địch.
  * Khác biệt giữa king và knight chỉ là DANH SÁCH OFFSET được inject.
+ *
+ * MỞ RỘNG: một quân "nhảy" kiểu mới = KHÔNG viết class mới, chỉ truyền bộ offset khác khi đăng ký
+ * trong Main (King=ALL_8, Knight=KNIGHT). Lưu ý: quân nhảy KHÔNG bị chặn giữa đường (khác sliding).
  */
 public final class SteppingRule implements MovementRule {
 

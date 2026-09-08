@@ -1,12 +1,12 @@
 package chess.model;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 /**
+ * Phase 1 — xem specs/phase-1.md (Chặng ① trong docs/diagrams.md).
  * Bàn cờ: giữ các quân theo ô và trả lời truy vấn "ô X có gì?".
  * Chỉ giữ STATE — không I/O, không luật đi, không định dạng.
  */

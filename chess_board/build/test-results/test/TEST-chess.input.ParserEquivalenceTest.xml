@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="chess.input.ParserEquivalenceTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-09-08T01:47:43.112Z" hostname="27597-PRDCV572" time="0.047">
+<testsuite name="chess.input.ParserEquivalenceTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-09-08T09:54:59.230Z" hostname="27597-PRDCV572" time="0.044">
   <properties/>
-  <testcase name="allFormatsProduceSameModel()" classname="chess.input.ParserEquivalenceTest" time="0.047"/>
+  <testcase name="allFormatsProduceSameModel()" classname="chess.input.ParserEquivalenceTest" time="0.044"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

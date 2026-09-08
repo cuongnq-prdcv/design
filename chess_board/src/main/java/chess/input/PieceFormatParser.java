@@ -5,6 +5,7 @@ import chess.model.Piece;
 import java.util.List;
 
 /**
+ * Phase 4 — xem specs/phase-4.md (Chặng ⓪ trong docs/diagrams.md).
  * TRỤC FORMAT (how): raw text → model (List<Piece>), KHÔNG biết text đến từ nguồn nào.
  * Mọi parser phải trả về CÙNG một model — downstream (validator, engine, writer) mù về format.
  *

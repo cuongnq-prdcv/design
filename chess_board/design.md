@@ -33,39 +33,50 @@ args ──▶ │ InputSource │ ─────────────▶ �
 
 ## 2. Các quyết định thiết kế đã chốt
 
-### Mục 1 — INPUT (2 chiều trực giao)
-- Tách **"đọc bytes"** (`InputSource`) khỏi **"hiểu bytes"** (`PieceFormatParser`).
-- **Ranh giới giữa 2 chiều là `String`** (đọc hết một lần — input nhỏ, không cần streaming).
-- Bất kỳ source nào × bất kỳ parser nào = tự do tổ hợp: `parser.parse(source.read())`.
-- **Chọn parser/source/writer bằng tay** ở composition root — KHÔNG auto-detect format.
-  - Cơ chế: **registry + cờ CLI** (Mức 2). `Map<String, Supplier<...>>` nạp ở `main`.
-  - Thêm format mới = thêm 1 dòng registry (OCP), không sửa code khác.
-- `Piece` do parser trả ra là **model thuần** (type, side, position) — KHÔNG gắn Board, KHÔNG gắn luật đi.
+Bài toán có **3 trục dễ thay đổi**: input, luật đi, output. Nguyên tắc chung: mỗi trục giấu sau
+một interface, và mọi mảnh cụ thể chỉ được ráp ở một nơi (`Main`). Nhờ đó thêm cái mới =
+thêm class + 1 dòng, không sửa code cũ.
 
-### Mục 2 — MOVEMENT RULES
-- `MovementRule` **tách rời** khỏi `Piece`. Engine giữ `Map<PieceType, MovementRule>` nạp ở
-  composition root. Engine chỉ **tra map**, KHÔNG `switch(pieceType)`.
-- Gom 2 "họ" luật để giảm trùng lặp (vẫn không có switch, thể hiện LSP):
-  - **SlidingRule** — trượt theo danh sách hướng đến khi bị chặn. Rook = 4 hướng thẳng,
-    Bishop = 4 hướng chéo, Queen = cả 8 hướng.
-  - **SteppingRule** — offset cố định, 1 bước. King = 8 ô quanh, Knight = 8 offset chữ L.
-  - **PawnRule** — để riêng (luật đặc thù: đi thẳng không ăn, ăn chéo, nước đôi từ hàng xuất phát).
-- `Move { Square target; boolean capture; }` — đủ để đánh dấu `(x)` theo yêu cầu đề.
+### Mục 1 — INPUT: tách "lấy ở đâu" khỏi "hiểu thế nào"
 
-### Mục 3 — OUTPUT (pluggable, tách format khỏi đích đến)
-- `ResultWriter.write(ResultSet, Appendable out)` — **Lựa chọn Y**.
-  - `Appendable` chuẩn Java: `System.out`, `StringBuilder`, `FileWriter` đều implement.
-  - Test dùng `StringBuilder` (zero I/O — đúng "DIP proof"); production dùng `System.out`/`FileWriter`.
-  - Tách **format** (writer làm) khỏi **đích đến** (Appendable) — nhất quán với cách tách source×format.
-- `ResultSet` là **data thuần**, KHÔNG có `toJson()` (nếu có thì tangle rules với output).
+Đọc input gồm 2 việc độc lập, nên tách làm 2 interface:
+- `InputSource.read()` — **lấy text ở đâu** (file / console). Không quan tâm định dạng.
+- `PieceFormatParser.parse(text)` — **hiểu text thế nào** (notation / YAML / JSON) → `List<Piece>`.
 
-### Handle error
-- **Một kiểu lỗi domain thống nhất:** `ChessInputException` (unchecked) cho MỌI lỗi input/validation:
-  unknown piece type/side, off-board, trùng ô, cú pháp notation/YAML/JSON sai, file không đọc được.
-- **Hội tụ về một chỗ:** `Main` bắt `ChessInputException`, in thông báo rõ ra `stderr`, thoát với
-  exit code ≠ 0. Phần còn lại KHÔNG bắt lỗi lẻ tẻ, chỉ ném với thông điệp rõ ràng.
-- `Square` vẫn validate biên; `BoardValidator` là nơi gom validate board (off-board/trùng ô) và
-  ném `ChessInputException` — KHÔNG lặp validate trong từng parser.
+Chúng gặp nhau ở kiểu `String`, nên ghép tự do: `parser.parse(source.read())`. Bất kỳ định dạng
+nào cũng đọc được từ bất kỳ nguồn nào (JSON từ file, YAML từ console…).
+
+- **Chọn nguồn/định dạng bằng cờ CLI**, không tự đoán. `Main` giữ một registry
+  `Map<String, Supplier<…>>`; thêm định dạng mới = thêm 1 dòng.
+- `Piece` chỉ là **dữ liệu** (type, side, position) — không dính Board, không dính luật đi.
+
+### Mục 2 — LUẬT ĐI: mỗi quân một luật, engine không cần biết là quân gì
+
+`MovementRule.movesFor(piece, board)` là câu hỏi chung cho mọi quân: "đi được những ô nào?".
+Engine giữ bảng tra `Map<PieceType, MovementRule>` và chỉ **tra bảng** — không `switch` theo loại quân.
+
+Có 3 kiểu luật (6 quân, 3 class nhờ dùng lại):
+- **SlidingRule** — trượt theo hướng tới khi bị chặn. Rook (4 thẳng), Bishop (4 chéo), Queen (cả 8).
+- **SteppingRule** — nhảy 1 bước theo offset cố định. King (8 ô quanh), Knight (8 nước chữ L).
+- **PawnRule** — riêng, vì luật khác hẳn: đi thẳng vào ô trống, ăn chéo.
+
+Kết quả mỗi nước là `Move { Square target; boolean capture }` — `capture` để đánh dấu `(x)`.
+
+### Mục 3 — OUTPUT: tách "định dạng gì" khỏi "ghi ra đâu"
+
+`ResultWriter.write(resultSet, out)` với `out` là `Appendable` (chuẩn Java, cả `System.out`,
+`StringBuilder`, `FileWriter` đều dùng được).
+- **Định dạng** (Console/JSON) do writer lo; **đích đến** do `Appendable` lo → thêm format mới =
+  thêm 1 writer class.
+- Test bơm `StringBuilder` → chạy không cần I/O thật (bằng chứng DIP).
+- `ResultSet` chỉ là **dữ liệu**, không tự biết `toJson()` — nếu biết thì luật đi lại dính output.
+
+### Mục 4 — XỬ LÝ LỖI: mọi lỗi một kiểu, bắt một chỗ
+
+- Mọi lỗi input/validation (định dạng sai, quân lạ, ra ngoài bàn, trùng ô, file thiếu) đều ném
+  cùng một kiểu `ChessInputException`.
+- `Main` là nơi **duy nhất** bắt nó: in thông báo rõ ra `stderr`, thoát với exit code ≠ 0.
+- Kiểm tra board (trùng ô…) gom hết vào `BoardValidator` — không rải rác trong từng parser.
 
 ---
 

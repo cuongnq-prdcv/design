@@ -10,10 +10,16 @@ import java.util.List;
 import java.util.Optional;
 
 /**
+ * Phase 1 (Rook) + Phase 2 (Bishop/Queen) — xem specs/phase-1.md, specs/phase-2.md.
+ *
  * Luật cho quân trượt (rook/bishop/queen): trượt theo mỗi hướng tới khi bị chặn.
  * - Dừng trước quân cùng phe (không vào, không đi qua).
  * - Dừng TẠI quân địch đầu tiên và có thể ăn (capture).
  * Khác biệt giữa các quân chỉ là DANH SÁCH HƯỚNG được inject.
+ *
+ * MỞ RỘNG: một quân trượt kiểu mới = KHÔNG viết class mới, chỉ truyền bộ Direction khác khi đăng
+ * ký trong Main (ví dụ Rook=ORTHOGONAL, Bishop=DIAGONAL, Queen=ALL_8). Đây là điểm OCP: thêm quân
+ * trượt không sửa code luật.
  */
 public final class SlidingRule implements MovementRule {
 

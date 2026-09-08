@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="chess.rules.SlidingSteppingReuseTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-09-08T01:47:43.210Z" hostname="27597-PRDCV572" time="0.005">
+<testsuite name="chess.rules.SlidingSteppingReuseTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-09-08T09:54:59.334Z" hostname="27597-PRDCV572" time="0.008">
   <properties/>
-  <testcase name="knightJumpsOverBlockers()" classname="chess.rules.SlidingSteppingReuseTest" time="0.001"/>
-  <testcase name="queenIsRookPlusBishop()" classname="chess.rules.SlidingSteppingReuseTest" time="0.001"/>
+  <testcase name="knightJumpsOverBlockers()" classname="chess.rules.SlidingSteppingReuseTest" time="0.002"/>
+  <testcase name="queenIsRookPlusBishop()" classname="chess.rules.SlidingSteppingReuseTest" time="0.002"/>
   <testcase name="bishopSlidesDiagonalsOnly()" classname="chess.rules.SlidingSteppingReuseTest" time="0.001"/>
   <testcase name="knightJumpsEightLShapes()" classname="chess.rules.SlidingSteppingReuseTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>

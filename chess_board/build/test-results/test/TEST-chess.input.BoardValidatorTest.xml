@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="chess.input.BoardValidatorTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-09-08T01:47:42.741Z" hostname="27597-PRDCV572" time="0.017">
+<testsuite name="chess.input.BoardValidatorTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-09-08T09:54:58.864Z" hostname="27597-PRDCV572" time="0.009">
   <properties/>
-  <testcase name="rejectsDuplicateSquare()" classname="chess.input.BoardValidatorTest" time="0.011"/>
-  <testcase name="acceptsValidBoard()" classname="chess.input.BoardValidatorTest" time="0.004"/>
+  <testcase name="rejectsDuplicateSquare()" classname="chess.input.BoardValidatorTest" time="0.004"/>
+  <testcase name="acceptsValidBoard()" classname="chess.input.BoardValidatorTest" time="0.003"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

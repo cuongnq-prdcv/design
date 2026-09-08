@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="chess.engine.MoveEnginePipelineTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-09-08T01:47:42.710Z" hostname="27597-PRDCV572" time="0.024">
+<testsuite name="chess.engine.MoveEnginePipelineTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-09-08T09:54:58.834Z" hostname="27597-PRDCV572" time="0.025">
   <properties/>
-  <testcase name="pipelineComputesAndRendersWithoutRealIo()" classname="chess.engine.MoveEnginePipelineTest" time="0.024"/>
+  <testcase name="pipelineComputesAndRendersWithoutRealIo()" classname="chess.engine.MoveEnginePipelineTest" time="0.025"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

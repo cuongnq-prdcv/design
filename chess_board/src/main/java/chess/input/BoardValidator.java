@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * Phase 4 — xem specs/phase-4.md (case 10-11: validation một chỗ).
  * NƠI DUY NHẤT validate BOARD từ danh sách Piece đã parse, rồi dựng Board.
  * KHÔNG lặp trong từng parser — mọi format đi qua đây.
  *

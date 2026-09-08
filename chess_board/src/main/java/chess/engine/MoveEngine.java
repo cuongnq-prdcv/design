@@ -12,9 +12,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Phase 1 — xem specs/phase-1.md (Chặng ② trong docs/diagrams.md).
+ *
  * Tính result set cho cả bàn cờ.
  * KHÔNG biết quân cụ thể — tra Map<PieceType, MovementRule> được inject.
  * Không I/O, không switch(type). Test được với in-memory Board.
+ *
+ * ỔN ĐỊNH QUA CÁC PHASE: class này KHÔNG đổi từ Phase 1 → Phase 4 dù thêm quân/format/input —
  */
 public final class MoveEngine {
 

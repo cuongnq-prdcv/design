@@ -1,6 +1,7 @@
 package chess.input;
 
 /**
+ * Phase 4 — xem specs/phase-4.md (Chặng ⓪ trong docs/diagrams.md).
  * TRỤC SOURCE (where): chỉ trả về raw text, KHÔNG biết text có định dạng gì.
  * Ranh giới với trục format là String — bất kỳ source nào cũng ghép được với bất kỳ parser nào.
  *

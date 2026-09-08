@@ -7,6 +7,8 @@ import chess.model.ResultSet;
 import java.io.IOException;
 
 /**
+ * Phase 3 — xem specs/phase-3.md (6 case, verify JSON parse hợp lệ bằng json.load).
+ *
  * Render ResultSet ra JSON hợp lệ, ghi vào Appendable.
  * Viết JSON tay (không dependency, không reflection) — đủ cho shape đơn giản của bài.
  * Shape:

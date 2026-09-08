@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.StringJoiner;
 
 /**
+ * Phase 1 — xem specs/phase-1.md.
  * Định dạng dễ đọc cho console:
  *   WHITE ROOK A1 -> [A2, A3, B1(x)]
  * (x) đánh dấu nước ăn quân.

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="chess.input.JsonParserTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-09-08T01:47:43.071Z" hostname="27597-PRDCV572" time="0.026">
+<testsuite name="chess.input.JsonParserTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-09-08T09:54:59.187Z" hostname="27597-PRDCV572" time="0.026">
   <properties/>
-  <testcase name="parsesValidJson()" classname="chess.input.JsonParserTest" time="0.022"/>
-  <testcase name="rejectsMalformedJson()" classname="chess.input.JsonParserTest" time="0.004"/>
+  <testcase name="parsesValidJson()" classname="chess.input.JsonParserTest" time="0.023"/>
+  <testcase name="rejectsMalformedJson()" classname="chess.input.JsonParserTest" time="0.003"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

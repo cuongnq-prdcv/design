@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="chess.arch.ArchitectureBoundaryTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-09-08T01:47:42.656Z" hostname="27597-PRDCV572" time="0.047">
+<testsuite name="chess.arch.ArchitectureBoundaryTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-09-08T09:54:58.785Z" hostname="27597-PRDCV572" time="0.042">
   <properties/>
-  <testcase name="coreDoesNotDependOnInput()" classname="chess.arch.ArchitectureBoundaryTest" time="0.047"/>
+  <testcase name="coreDoesNotDependOnInput()" classname="chess.arch.ArchitectureBoundaryTest" time="0.042"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="chess.rules.PawnRuleTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-09-08T01:47:43.186Z" hostname="27597-PRDCV572" time="0.014">
+<testsuite name="chess.rules.PawnRuleTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-09-08T09:54:59.304Z" hostname="27597-PRDCV572" time="0.015">
   <properties/>
-  <testcase name="pawnTwoSquareBlockedBySecondSquare()" classname="chess.rules.PawnRuleTest" time="0.001"/>
+  <testcase name="pawnTwoSquareBlockedBySecondSquare()" classname="chess.rules.PawnRuleTest" time="0.002"/>
   <testcase name="blackPawnMovesDownward()" classname="chess.rules.PawnRuleTest" time="0.001"/>
   <testcase name="pawnCapturesDiagonallyNotForwardEnemy()" classname="chess.rules.PawnRuleTest" time="0.001"/>
   <testcase name="pawnDoesNotCaptureFriendlyDiagonal()" classname="chess.rules.PawnRuleTest" time="0.001"/>
   <testcase name="whitePawnOnStartCanMoveOneOrTwo()" classname="chess.rules.PawnRuleTest" time="0.001"/>
-  <testcase name="pawnBlockedCannotMoveForward()" classname="chess.rules.PawnRuleTest" time="0.0"/>
+  <testcase name="pawnBlockedCannotMoveForward()" classname="chess.rules.PawnRuleTest" time="0.001"/>
   <testcase name="whitePawnNotOnStartMovesOneOnly()" classname="chess.rules.PawnRuleTest" time="0.002"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

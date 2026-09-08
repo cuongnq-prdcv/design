@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="chess.input.SourceFormatOrthogonalTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-09-08T01:47:43.161Z" hostname="27597-PRDCV572" time="0.001">
+<testsuite name="chess.input.SourceFormatOrthogonalTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-09-08T09:54:59.276Z" hostname="27597-PRDCV572" time="0.001">
   <properties/>
   <testcase name="anyFormatFromAnySource()" classname="chess.input.SourceFormatOrthogonalTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>

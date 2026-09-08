@@ -1,6 +1,7 @@
 package chess.model;
 
 /**
+ * Phase 1 — xem specs/phase-1.md.
  * Một ô trên bàn cờ 8x8.
  * file: 0..7 tương ứng A..H; rank: 0..7 tương ứng 1..8.
  * Model thuần — không I/O, không luật đi.
